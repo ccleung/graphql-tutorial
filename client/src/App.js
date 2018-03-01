@@ -10,8 +10,18 @@ import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import { mockNetworkInterfaceWithSchema } from 'apollo-test-utils';
 import { typeDefs } from './schema';
 
-const schema = makeExecutableSchema({ typeDefs });
-addMockFunctionsToSchema({ schema });
+const schema = makeExecutableSchema({
+  typeDefs
+});
+addMockFunctionsToSchema({
+  schema,
+  mocks: {
+    String: () => 'Hello',
+    Channel:() => ({
+      name: 'foobar'
+    })
+  }
+});
 
 const mockNetworkInterface = mockNetworkInterfaceWithSchema({ schema });
 
@@ -20,18 +30,19 @@ const client = new ApolloClient({
   networkInterface: mockNetworkInterface,
 });
 
-const ChannelsList = ({ data: {loading, error, channels }}) => {
-  if (loading) {
-    return <p>Loading ...</p>;
-  }
-  if (error) {
-    return <p>{error.message}</p>;
-  }
+// const client = new ApolloClient();
 
-  return <ul>
-    { channels.map( ch => <li key={ch.id}>{ch.name}</li> ) }
-  </ul>;
-};
+const ChannelsList = ({ data: {loading, error, channels }}) => {
+   if (loading) {
+     return <p>Loading ...</p>;
+   }
+   if (error) {
+     return <p>{error.message}</p>;
+   }
+   return <ul className="Item-list">
+     { channels.map( ch => <li key={ch.id}>{ch.name}</li> ) }
+   </ul>;
+ };
 
 const channelsListQuery = gql`
   query ChannelsListQuery {
